@@ -1,13 +1,13 @@
 const db = require('./database')
 // Database Schema: [error_id, application_from, application_to, type]
 
-// route: /:application/:type
+// route: /application/:appName/:type
 const application = (req, res) => {
-    const application = req.params.application;
+    const application = req.params.appName;
     const type = req.params.type;
 
     let query = ``;
-    if (type == 'from') {
+    if (type === 'from') {
         query = `SELECT * FROM data WHERE application_from = ?`
     } else {
         query = `SELECT * FROM data WHERE application_to = ?`
@@ -25,11 +25,11 @@ const application = (req, res) => {
 
 }
 
-// route: /:warning
+// route: /warning/:warningType
 // parameter is a type of warning i.e., program is sending filenames
 const warning = (req, res) => {
     const query = `SELECT * FROM data WHERE type = ?`
-    const params = [req.params.warning]
+    const params = [req.params.warningType]
     db.get(query, params, (err, row) => {
         if (err) {
             return res.status(500).json({ error: err.message });
