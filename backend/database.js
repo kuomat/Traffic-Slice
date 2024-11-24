@@ -1,6 +1,8 @@
+const { request } = require('express');
+
 const sqlite3 = require('sqlite3').verbose();
 
-const db = new sqlite3.Database('./database.db', (err) => {
+const warnings_db = new sqlite3.Database('./warnings.db', (err) => {
     if (err) {
         console.error('Error opening database', err);
     } else {
@@ -8,16 +10,39 @@ const db = new sqlite3.Database('./database.db', (err) => {
     }
 });
 
-const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS data (
-        error_id INTEGER PRIMARY KEY AUTOINCREMENT,
+const requests_db = new sqllite3.Database('./requests.db', (err) => {
+    if (err) {
+        console.error('Error opening database', err);
+    } else {
+        console.log('Database opened successfully');
+    }
+})
+
+const createWarningsTableQuery = `
+    CREATE TABLE IF NOT EXISTS warnings (
+        request_id INTEGER PRIMARY KEY,
         application_from TEXT NOT NULL,
         application_to TEXT NOT NULL,
-        type TEXT NOT NULL
+        type TEXT NOT NULL,
+        FOREIGN KEY (request_id) REFERENCES requests(request_id)
     );
 `;
 
-db.run(createTableQuery, (err) => {
+const createRequestsTableQuery = `
+    CREATE TABLE IF NOT EXISTS requests (
+        request_id INTEGER PRIMARY KEY AUTOINCREMENT
+    );
+`
+
+warnings_db.run(createWarningsTableQuery, (err) => {
+    if (err) {
+        console.error('Error creating table', err);
+    } else {
+        console.log('Table created (or already exists)');
+    }
+});
+
+requests_db.run(createRequestsTableQuery, (err) => {
     if (err) {
         console.error('Error creating table', err);
     } else {
@@ -34,4 +59,4 @@ const insertSampleData = `
     ('AppA', 'AppD', 'payload');
 `;
 
-module.exports = db;
+module.exports = {warnings_db, requests_db};
