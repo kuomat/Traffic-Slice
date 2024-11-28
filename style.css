@@ -1,0 +1,101 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+}
+
+header {
+    background-color: #539ce6; /* Nice blue color */
+    color: white;
+    padding: 20px 0;
+    border-radius: 20px; /* Rounded edges */
+    margin: 1px; /* To prevent header from touching the screen edges */
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header h2 {
+    margin: 0;
+}
+
+.header-item {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+}
+
+.header-left {
+    display: flex;
+    align-items: left;
+}
+
+header h2 {
+    margin: 0 0 0 15px; /* Add space between the home icon and title */
+}
+
+header i {
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.header-item p {
+    margin: 5px 0 0 0;
+    font-size: 0.9em;
+}
+
+.info-section {
+    background-color: rgb(211, 235, 249); /* White background */
+    padding: 20px;
+    border-radius: 20px; /* Rounded corners similar to header */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: adds a subtle shadow for depth */
+    margin: 20px auto;
+    max-width: 800px;
+    text-align: left; /* Align text to the left for better readability */
+    font-size: 1.2em; /* Increase the font size */
+    margin: 27px 10px;
+}
+
+footer {
+    background-color: #539ce6; /* Same blue color as header */
+    color: white;
+    padding: 10px 0;
+    position: fixed;
+    width: calc(100% - 1px); /* Adjust to account for margins */
+    bottom: 10px; /* Add space from the bottom edge */
+    border-radius: 20px; /* Rounded edges */
+    margin: 0; /* To prevent footer from touching the screen edges */
+}
+
+footer p {
+    margin: 0;
+}
+
+.warnings-section {
+    position: fixed;
+    bottom: 100px; /* Move the section higher from the bottom */
+    left: 30px; /* Move the section to the right */
+    width: 300px; /* Set a fixed width */
+    height: 40%; /* Make it take 40% of the page height */
+    background-color: rgb(211, 235, 249); /* Yellow background to indicate warning */
+    color: #333;
+    padding: 15px;
+    border-radius: 15px; /* Rounded edges */
+    text-align: left;
+    overflow-y: auto; /* Allow scrolling if content exceeds height */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+}
+
+.warnings-section h3 {
+    margin-top: 0;
+    font-size: 1.2em;
+}
