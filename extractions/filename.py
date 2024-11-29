@@ -1,4 +1,6 @@
-from mitmproxy import http, ctx
+## Run this with mitdump -s filename.py
+
+from mitmproxy import http
 
 def request(flow: http.HTTPFlow):
     if "content-type" in flow.request.headers:
@@ -14,5 +16,7 @@ def request(flow: http.HTTPFlow):
                 if "filename=" in line:
                     # Extract the filename from the Content-Disposition header
                     filename = line.split("filename=")[-1].strip("\"")
-                    ctx.log.info(f"Intercepted file upload: {filename}")
+                    print(f"Intercepted file upload: {filename}")
                     break
+
+
