@@ -1,3 +1,4 @@
+// route: /application/:application/:type
 const db = require('./database')
 const application = (req, res) => {
     const application = req.params.appName;
@@ -19,8 +20,7 @@ const application = (req, res) => {
         }
         res.json(row);
     });
-
-}
+};
 
 // route: /warning/:warningType
 // parameter is a type of warning i.e., program is sending filenames

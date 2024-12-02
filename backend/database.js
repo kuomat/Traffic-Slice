@@ -10,7 +10,7 @@ const warnings_db = new sqlite3.Database('./warnings.db', (err) => {
     }
 });
 
-const requests_db = new sqllite3.Database('./requests.db', (err) => {
+const requests_db = new sqlite3.Database('./requests.db', (err) => {
     if (err) {
         console.error('Error opening database', err);
     } else {
@@ -20,17 +20,28 @@ const requests_db = new sqllite3.Database('./requests.db', (err) => {
 
 const createWarningsTableQuery = `
     CREATE TABLE IF NOT EXISTS warnings (
-        request_id INTEGER PRIMARY KEY,
+        warning_id INTEGER PRIMARY KEY AUTOINCREMENT,
         application_from TEXT NOT NULL,
         application_to TEXT NOT NULL,
         type TEXT NOT NULL,
-        FOREIGN KEY (request_id) REFERENCES requests(request_id)
+        severity INTEGER NOT NULL
     );
 `;
 
 const createRequestsTableQuery = `
     CREATE TABLE IF NOT EXISTS requests (
-        request_id INTEGER PRIMARY KEY AUTOINCREMENT
+        request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        warning_id INTEGER NOT NULL,
+        timestamp DATETIME,
+        method TEXT,
+        url TEXT,
+        host TEXT,
+        headers TEXT,
+        body TEXT,
+        status_code INTEGER,
+        response_body TEXT,
+        client_ip TEXT,
+        FOREIGN KEY (warning_id) REFERENCES warnings(warning_id)
     );
 `
 
@@ -51,12 +62,12 @@ requests_db.run(createRequestsTableQuery, (err) => {
 });
 
 // Insert some sample data into the 'data' table
-const insertSampleData = `
-    INSERT INTO data (application_from, application_to, type) 
-    VALUES
-    ('AppA', 'AppB', 'filename'),
-    ('AppB', 'AppC', 'image'),
-    ('AppA', 'AppD', 'payload');
-`;
+// const insertSampleData = `
+//     INSERT INTO data (application_from, application_to, type) 
+//     VALUES
+//     ('AppA', 'AppB', 'filename'),
+//     ('AppB', 'AppC', 'image'),
+//     ('AppA', 'AppD', 'payload');
+// `;
 
 module.exports = {warnings_db, requests_db};
