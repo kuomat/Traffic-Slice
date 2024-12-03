@@ -1,5 +1,5 @@
-from screener.src.AlertSetup import AlertSetup
-from screener.src.Screeners.RegexScreener import RegexScreener
+from AlertSetup import AlertSetup
+from Screeners.RegexScreener import RegexScreener
 import sqlite3
 
 
@@ -15,7 +15,6 @@ class FileNameScreener(RegexScreener):
 
     def __init__(
         self,
-        alert_setup: AlertSetup,
         db_connection: sqlite3.Connection,
     ) -> None:
         """
@@ -25,6 +24,12 @@ class FileNameScreener(RegexScreener):
             alert_setup: The alert configuration
             db_connection: SQLite database connection
         """
+        alert_setup: AlertSetup = AlertSetup(
+            alert_name="File Name Leak",
+            type="file_name",
+            severity=1,
+        )
+
         # Pattern matches filenames with common extensions
         # Format: word characters followed by a dot and common extensions
         file_pattern = r"\b[\w\-\.]+\.(pdf|doc|docx|txt|rtf|csv|xls|xlsx|exe|dll|bat|sh|py|js|html|htm|php|jpg|jpeg|png|gif|mp3|mp4|avi|mkv|zip|rar|7z|tar|gz)\b"

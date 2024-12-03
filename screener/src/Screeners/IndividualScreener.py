@@ -6,7 +6,7 @@ from mitmproxy import http
 from mitmproxy.utils import strutils
 import logging
 
-from screener.src.AlertSetup import AlertSetup
+from AlertSetup import AlertSetup
 
 
 class IndividualScreener(ABC):
@@ -99,15 +99,13 @@ class IndividualScreener(ABC):
             raise Exception("Failed to save HTTP request to database")
         return new_id
 
-    def save_alert_to_db(self, message: str) -> int:
+    def save_alert_to_db(
+        self, message: str, application_from: str, destination_domain: str
+    ) -> int:
         """Save the alert to the database without any relationships.
 
         Returns the ID of the alert.
         """
-
-        application_from = "UNKNOWN"
-        destination_domain = "UNKNOWN"
-
         cursor = self.db_connection.cursor()
         cursor.execute(
             """
@@ -154,10 +152,20 @@ class IndividualScreener(ABC):
         http_request: Optional[http.HTTPFlow] = None,
     ) -> None:
         """Handle the trigger of the screener"""
+
+        print(f"Triggering {self.alert_setup.alert_name} with message: {message}")
+
         # TODO update this logic to be more storage efficient
 
+        application_from = "UNKNOWN"
+        destination_domain = "UNKNOWN"
+
+        if http_request:
+            application_from = http_request.request.headers.get("User-Agent", "UNKNOWN")
+            destination_domain = http_request.request.url.split("/")[2]
+
         # Store the alert in a the database
-        alert_id = self.save_alert_to_db(message)
+        alert_id = self.save_alert_to_db(message, application_from, destination_domain)
 
         # Store the TCP message in the database
         if tcp_message:
