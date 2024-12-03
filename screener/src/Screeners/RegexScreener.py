@@ -1,8 +1,8 @@
 import re
 from typing import List, Optional
 
-from screener.src.AlertSetup import AlertSetup
-from screener.src.Screeners import IndividualScreener
+from AlertSetup import AlertSetup
+from Screeners import IndividualScreener
 import sqlite3
 
 
@@ -36,7 +36,8 @@ class RegexScreener(IndividualScreener):
             A message describing the match if found, None otherwise
         """
         for search_string in search_strings:
-            if self.pattern.search(search_string):
-                return f"Found match for pattern '{self.pattern.pattern}' in traffic"
+            match = self.pattern.search(search_string)
+            if match:
+                return f"Found '{match.group()}' matching pattern '{self.pattern.pattern}' in traffic"
 
         return None
