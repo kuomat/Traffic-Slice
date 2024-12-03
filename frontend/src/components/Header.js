@@ -28,7 +28,7 @@ const Header = () => {
         {/* Home Button */}
         <button
           onClick={handleHomeClick}
-          className="flex flex-col items-center bg-transparent border-none cursor-pointer px-5"
+          className="flex flex-col items-center bg-transparent border-none cursor-pointer px-12"
         >
           <i className="fas fa-home text-2xl"></i>
           <p className="mt-1 text-sm">Home</p>
@@ -47,7 +47,7 @@ const Header = () => {
         <h2 className="text-lg font-bold text-center flex-grow">Traffic Slice</h2>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="flex items-center px-2">
+        <form onSubmit={handleSearch} className="flex items-center px-1">
           <input
             type="text"
             placeholder="Search..."

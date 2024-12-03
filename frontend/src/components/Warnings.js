@@ -22,7 +22,7 @@ const WarningsSection = () => {
   };
 
   return (
-    <section className="fixed inset-0 flex justify-center items-center z-10">
+    <section className="m-10 inset-0 flex justify-center items-center z-10">
       <div className="w-1/2 max-h-96 bg-blue-100 text-gray-700 p-4 rounded-xl shadow-lg text-center overflow-invisible">
         <h3 className="text-xl font-semibold mb-4">List of Warnings</h3>
 
