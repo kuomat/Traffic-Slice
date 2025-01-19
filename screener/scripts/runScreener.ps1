@@ -1,1 +1,1 @@
-mitmdump -s .\src\run.py --set flow_detail=0
+& .\.venv\scripts\mitmdump.exe -s .\src\run.py --set flow_detail=0
