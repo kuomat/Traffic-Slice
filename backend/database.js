@@ -61,13 +61,53 @@ requests_db.run(createRequestsTableQuery, (err) => {
     }
 });
 
-// Insert some sample data into the 'data' table
-// const insertSampleData = `
-//     INSERT INTO data (application_from, application_to, type) 
-//     VALUES
-//     ('AppA', 'AppB', 'filename'),
-//     ('AppB', 'AppC', 'image'),
-//     ('AppA', 'AppD', 'payload');
-// `;
+//Insert some sample data into the 'data' table
+const insertSampleData = `
+    INSERT INTO warnings (application_from, application_to, type, severity) 
+    VALUES
+    ('AppA', 'AppB', 'filename', '1'),
+    ('AppB', 'AppD', 'image', '1'),
+    ('AppA', 'AppD', 'payload', '1');
+`;
 
-module.exports = {warnings_db, requests_db};
+const insertRequestSampleData = `
+    INSERT INTO requests (warning_id, timestamp, method, url, host, headers, body, status_code, response_body, client_ip) 
+    VALUES
+    (1, '2024-12-01 12:00:00', 'GET', '/example-path', 'example.com', '{"Content-Type": "application/json"}', '{"key": "value"}', 200, '{"result": "success"}', '192.168.1.1'),
+    (1, '2024-12-01 12:05:00', 'POST', '/submit-data', 'example.com', '{"Content-Type": "application/x-www-form-urlencoded"}', '{"data": "sample"}', 201, '{"status": "created"}', '192.168.1.2'),
+    (1, '2024-12-01 12:10:00', 'PUT', '/update-record', 'example.com', '{"Authorization": "Bearer token"}', '{"update": "info"}', 204, '', '192.168.1.3');
+`;
+
+warnings_db.run(insertSampleData, function(err) {
+    if (err) {
+        console.error('Error inserting data', err);
+    } else {
+        console.log('Sample data inserted successfully');
+        
+        // Query the table to see if data was inserted
+        warnings_db.all('SELECT * FROM warnings', (err, rows) => {
+            if (err) {
+                console.error('Error fetching data', err);
+            } else {
+                console.log('Rows fetched from warnings table:', rows);
+            }
+        });
+    }
+});
+
+requests_db.run(insertRequestSampleData, function(err) {
+    if (err) {
+        console.error('Error inserting data', err);
+    } else {
+        console.log('Sample data inserted successfully');
+    }
+
+    requests_db.all('SELECT * FROM requests', (err, rows) => {
+        if (err) {
+            console.error('Error fetching data', err);
+        } else {
+            console.log('Rows fetched from warnings table:', rows);
+        }
+    });
+});
+//module.exports = {warnings_db, requests_db};
