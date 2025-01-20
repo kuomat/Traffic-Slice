@@ -5,14 +5,15 @@ import { useParams } from 'react-router-dom';
 import AppWarnings from '../components/AppWarnings';
 
 function Application() {
-    const { app } = useParams()
+    const { application } = useParams()
+    console.log("stuff" , application)
 
     return (
-    <div className="App">
+    <>
         <Header />
-        <AppWarnings app={app}/>
+        <AppWarnings app={application}/>
         <Footer />
-    </div>
+    </>
     );
     }
 
