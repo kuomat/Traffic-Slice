@@ -183,6 +183,9 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 	const [currentPage, setCurrentPage] = useState(1)
 	const rowsPerPage = 5
 
+	// State to track the selected alert for the popup
+	const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null)
+
 	// Filter state for sorting, searching, and limiting results
 	const [filter, setFilter] = useState<AlertFilter>({
 		orderBy: "severity",
@@ -213,16 +216,13 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 	}, [currentPage, rowsPerPage])
 
 	// Handles column sorting when header is clicked
-	const clickSorting = useCallback(
-		(column: keyof Alert) => {
-			setFilter(prev => {
-				const columnWasSorted = prev.orderBy === column
-				const newOrder = columnWasSorted ? (prev.order === "asc" ? "desc" : "asc") : "desc"
-				return { orderBy: column, order: newOrder }
-			})
-		},
-		[]
-	)
+	const clickSorting = useCallback((column: keyof Alert) => {
+		setFilter(prev => {
+			const columnWasSorted = prev.orderBy === column
+			const newOrder = columnWasSorted ? (prev.order === "asc" ? "desc" : "asc") : "desc"
+			return { orderBy: column, order: newOrder }
+		})
+	}, [])
 
 	// Fetch alerts data with current filter
 	const { data: alerts, isLoading, error } = useAlerts(filter)
@@ -277,30 +277,6 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 					)
 				}
 			},
-			// Message column with search functionality
-			{
-				accessorKey: "message",
-				enableResizing: true,
-				header: () => (
-					<TableHeaderWithSearch
-						title="Message"
-						columnName="message"
-						filter={filter}
-						onSearch={value => {
-							setFilter({ message: value })
-						}}
-					/>
-				),
-				cell: ({ row }) => {
-					return (
-						<SearchableCell
-							value={row.original.message}
-							filter={filter}
-							columnName="message"
-						/>
-					)
-				}
-			},
 			// Application column with search functionality
 			{
 				accessorKey: "application_from",
@@ -322,43 +298,6 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 							filter={filter}
 							columnName="application_from"
 						/>
-					)
-				}
-			},
-			// Destination column with search functionality
-			{
-				accessorKey: "destination_domain",
-				enableResizing: true,
-				header: () => (
-					<TableHeaderWithSearch
-						title="Destination"
-						columnName="destination_domain"
-						filter={filter}
-						onSearch={value => {
-							setFilter({ destination_domain: value })
-						}}
-					/>
-				),
-				cell: ({ row }) => {
-					return (
-						<SearchableCell
-							value={row.original.destination_domain}
-							filter={filter}
-							columnName="destination_domain"
-						/>
-					)
-				}
-			},
-			// Timestamp column with sortable header
-			{
-				accessorKey: "timestamp",
-				enableResizing: true,
-				header: () => {
-					return (
-						<Button variant="ghost" onClick={() => clickSorting("timestamp")}>
-							Timestamp
-							<SortSymbol columnName="timestamp" alertFilter={filter} />
-						</Button>
 					)
 				}
 			}
@@ -408,6 +347,8 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
+									onClick={() => setSelectedAlert(row.original)} // Set selected alert on row click
+									className="cursor-pointer"
 								>
 									{row.getVisibleCells().map(cell => (
 										<TableCell key={cell.id}>
@@ -464,6 +405,39 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 							</PaginationItem>
 						</PaginationContent>
 					</Pagination>
+				</div>
+			)}
+
+			{/* Popup for displaying additional alert details */}
+			{selectedAlert && (
+				<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+					<div className="bg-white p-4 rounded shadow-lg">
+						<h2 className="text-lg font-bold text-purple-700">Alert Details</h2>
+						<p className="text-purple-700">
+							<strong>Severity:</strong> {selectedAlert.severity}
+						</p>
+						<p className="text-purple-700">
+							<strong>Alert Name:</strong> {selectedAlert.alert_name}
+						</p>
+						<p className="text-purple-700">
+							<strong>Message:</strong> {selectedAlert.message}
+						</p>
+						<p className="text-purple-700">
+							<strong>Application Source:</strong> {selectedAlert.application_from}
+						</p>
+						<p className="text-purple-700">
+							<strong>Destination:</strong> {selectedAlert.destination_domain}
+						</p>
+						<p className="text-purple-700">
+							<strong>Timestamp:</strong> {selectedAlert.timestamp}
+						</p>
+						<button
+							className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+							onClick={() => setSelectedAlert(null)}
+						>
+							Close
+						</button>
+					</div>
 				</div>
 			)}
 		</div>
