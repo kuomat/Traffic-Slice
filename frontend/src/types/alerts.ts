@@ -34,4 +34,6 @@ export type AlertFilter = {
 	cursor?: number
 	orderBy?: keyof Alert
 	order?: "asc" | "desc"
+	offset?: number
+	pageSize?: number
 }

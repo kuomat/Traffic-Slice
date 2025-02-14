@@ -22,11 +22,20 @@ import { Button } from "@/components/ui/button"
 import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import {
+	Pagination,
+	PaginationContent,
+	PaginationItem,
+	PaginationLink,
+	PaginationNext,
+	PaginationPrevious
+} from "@/components/ui/pagination"
 
 type AlertTableProps = {
 	maxAlerts?: number
 }
 
+// Displays a colored badge representing alert severity level
 const RenderSeverity = React.memo(({ severity }: { severity: number }) => {
 	return (
 		<Badge
@@ -47,6 +56,7 @@ const RenderSeverity = React.memo(({ severity }: { severity: number }) => {
 	)
 })
 
+// Renders sort direction indicator (up/down/both arrows) for sortable columns
 const SortSymbol = React.memo(
 	({ columnName, alertFilter }: { columnName: keyof Alert; alertFilter: AlertFilter }) => {
 		const isSorted = alertFilter.orderBy === columnName
@@ -56,6 +66,7 @@ const SortSymbol = React.memo(
 	}
 )
 
+// Expandable search input with toggle button
 const SearchButton = React.memo(
 	({ value, onValueChange }: { value: string; onValueChange: (value: string) => void }) => {
 		const [isOpen, setIsOpen] = useState(!!value)
@@ -108,6 +119,7 @@ const SearchButton = React.memo(
 	}
 )
 
+// Table header cell with integrated search functionality
 const TableHeaderWithSearch = React.memo(
 	({
 		className,
@@ -132,6 +144,7 @@ const TableHeaderWithSearch = React.memo(
 	}
 )
 
+// Table cell that highlights search matches in text
 const SearchableCell = React.memo(
 	({
 		value,
@@ -164,34 +177,67 @@ const SearchableCell = React.memo(
 	}
 )
 
+// Main table component displaying alerts with sorting and searching capabilities
 const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
-	console.log("=== Component Render Start ===")
+	// Add pagination state
+	const [currentPage, setCurrentPage] = useState(1)
+	const rowsPerPage = 5
 
+	// Filter state for sorting, searching, and limiting results
 	const [filter, setFilter] = useState<AlertFilter>({
-		limit: maxAlerts,
 		orderBy: "severity",
-		order: "desc"
+		order: "desc",
+		offset: (currentPage - 1) * rowsPerPage,
+		pageSize: rowsPerPage
 	})
 
-	const clickSorting = useCallback((column: keyof Alert) => {
-		setFilter(prev => {
-			const columnWasSorted = prev.orderBy === column
-			const newOrder = columnWasSorted ? (prev.order === "asc" ? "desc" : "asc") : "desc"
-			const newFilter: AlertFilter = { ...prev, orderBy: column, order: newOrder }
-			return newFilter
-		})
-	}, [])
+	// // Reset page when search filters change
+	// const updateFilter = useCallback((updates: Partial<AlertFilter>) => {
+	// 	console.log("Updating filter and resetting page")
+	// 	setCurrentPage(1) // Reset to first page
+	// 	setFilter(prev => ({
+	// 		...prev,
+	// 		...updates,
+	// 		offset: 0, // Reset offset when filters change
+	// 		pageSize: rowsPerPage
+	// 	}))
+	// }, [rowsPerPage])
 
+	// Update filter when page changes
+	useEffect(() => {
+		setFilter(prev => ({
+			...prev,
+			offset: (currentPage - 1) * rowsPerPage,
+			pageSize: rowsPerPage
+		}))
+	}, [currentPage, rowsPerPage])
+
+	// Handles column sorting when header is clicked
+	const clickSorting = useCallback(
+		(column: keyof Alert) => {
+			setFilter(prev => {
+				const columnWasSorted = prev.orderBy === column
+				const newOrder = columnWasSorted ? (prev.order === "asc" ? "desc" : "asc") : "desc"
+				return { orderBy: column, order: newOrder }
+			})
+		},
+		[]
+	)
+
+	// Fetch alerts data with current filter
 	const { data: alerts, isLoading, error } = useAlerts(filter)
 
+	// Prepare alerts data for display, handling loading and error states
 	const alertsToUse = useMemo(() => {
 		if (isLoading) return []
 		if (error) return []
 		return alerts || []
 	}, [alerts, isLoading, error])
 
+	// Define table columns with their rendering and behavior
 	const tableColumns: ColumnDef<Alert>[] = useMemo(
 		() => [
+			// Severity column with sortable header and badge display
 			{
 				accessorKey: "severity",
 				enableResizing: true,
@@ -207,29 +253,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 					return <RenderSeverity severity={row.original.severity} />
 				}
 			},
-			{
-				accessorKey: "type",
-				enableResizing: true,
-				header: () => (
-					<TableHeaderWithSearch
-						title="Type"
-						columnName="type"
-						filter={filter}
-						onSearch={value => {
-							setFilter(prev => ({ ...prev, type: value }))
-						}}
-					/>
-				),
-				cell: ({ row }) => {
-					return (
-						<SearchableCell
-							value={row.original.type}
-							filter={filter}
-							columnName="type"
-						/>
-					)
-				}
-			},
+			// Alert name column with search functionality
 			{
 				accessorKey: "alert_name",
 				enableResizing: true,
@@ -239,7 +263,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 						columnName="alert_name"
 						filter={filter}
 						onSearch={value => {
-							setFilter(prev => ({ ...prev, alert_name: value }))
+							setFilter({ alert_name: value })
 						}}
 					/>
 				),
@@ -253,6 +277,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 					)
 				}
 			},
+			// Message column with search functionality
 			{
 				accessorKey: "message",
 				enableResizing: true,
@@ -262,7 +287,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 						columnName="message"
 						filter={filter}
 						onSearch={value => {
-							setFilter(prev => ({ ...prev, message: value }))
+							setFilter({ message: value })
 						}}
 					/>
 				),
@@ -276,6 +301,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 					)
 				}
 			},
+			// Application column with search functionality
 			{
 				accessorKey: "application_from",
 				enableResizing: true,
@@ -285,7 +311,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 						columnName="application_from"
 						filter={filter}
 						onSearch={value => {
-							setFilter(prev => ({ ...prev, application_from: value }))
+							setFilter({ application_from: value })
 						}}
 					/>
 				),
@@ -299,6 +325,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 					)
 				}
 			},
+			// Destination column with search functionality
 			{
 				accessorKey: "destination_domain",
 				enableResizing: true,
@@ -308,7 +335,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 						columnName="destination_domain"
 						filter={filter}
 						onSearch={value => {
-							setFilter(prev => ({ ...prev, destination_domain: value }))
+							setFilter({ destination_domain: value })
 						}}
 					/>
 				),
@@ -322,6 +349,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 					)
 				}
 			},
+			// Timestamp column with sortable header
 			{
 				accessorKey: "timestamp",
 				enableResizing: true,
@@ -335,9 +363,10 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 				}
 			}
 		],
-		[clickSorting, filter]
+		[clickSorting, filter, setFilter]
 	)
 
+	// Initialize table instance with configuration
 	const table = useReactTable({
 		data: alertsToUse,
 		columns: tableColumns,
@@ -412,6 +441,31 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 					</TableBody>
 				</Table>
 			</div>
+
+			{/* Only show pagination if we have data */}
+			{alertsToUse.length > 0 && (
+				<div className="border-t px-2 py-4">
+					<Pagination>
+						<PaginationContent>
+							<PaginationItem>
+								<PaginationPrevious
+									onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+									disabled={currentPage === 1}
+								/>
+							</PaginationItem>
+							<PaginationItem>
+								<PaginationLink>{currentPage}</PaginationLink>
+							</PaginationItem>
+							<PaginationItem>
+								<PaginationNext
+									onClick={() => setCurrentPage(prev => prev + 1)}
+									disabled={alertsToUse.length < rowsPerPage}
+								/>
+							</PaginationItem>
+						</PaginationContent>
+					</Pagination>
+				</div>
+			)}
 		</div>
 	)
 })
