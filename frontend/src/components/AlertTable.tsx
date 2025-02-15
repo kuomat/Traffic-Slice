@@ -71,6 +71,7 @@ const SearchButton = React.memo(
 	({ value, onValueChange }: { value: string; onValueChange: (value: string) => void }) => {
 		const [isOpen, setIsOpen] = useState(!!value)
 		const inputRef = useRef<HTMLInputElement>(null)
+		const [inputValue, setInputValue] = useState(value)
 
 		useEffect(() => {
 			if (isOpen) {
@@ -91,9 +92,14 @@ const SearchButton = React.memo(
 					<div className="flex items-center p-1">
 						<Input
 							ref={inputRef}
-							value={value}
+							value={inputValue}
 							onChange={e => {
-								onValueChange(e.target.value)
+								setInputValue(e.target.value)
+							}}
+							onKeyDown={e => {
+								if (e.key === "Enter") {
+									onValueChange(inputValue)
+								}
 							}}
 							onBlur={() => {
 								if (value === "") {
