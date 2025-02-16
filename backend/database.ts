@@ -19,6 +19,7 @@ export type Alert = {
  * String fields represent a LIKE clause
  */
 export type AlertFilter = {
+	alert_name?: string
 	application_from?: string
 	destination_domain?: string
 	type?: string
@@ -47,6 +48,7 @@ class DatabaseService {
 
 	async buildQuery(filter: AlertFilter): Promise<{ query: string; params: any[] }> {
 		const {
+			alert_name,
 			application_from,
 			destination_domain,
 			type,
@@ -61,6 +63,11 @@ class DatabaseService {
 
 		const whereClauses: string[] = []
 		const params: any[] = []
+
+		if (alert_name) {
+			whereClauses.push(`alert_name LIKE ?`)
+			params.push(`%${alert_name}%`)
+		}
 
 		if (application_from) {
 			whereClauses.push(`application_from LIKE ?`)

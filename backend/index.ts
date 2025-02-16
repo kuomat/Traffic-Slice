@@ -16,6 +16,7 @@ app.use(cors())
 app.get("/api/alerts", async (req, res) => {
 	try {
 		const filter: AlertFilter = AlertFilterSchema.parse(req.query)
+		// console.log(filter)
 		const alerts = await dbService.getAlerts(filter)
 		res.json(alerts)
 	} catch (error) {
