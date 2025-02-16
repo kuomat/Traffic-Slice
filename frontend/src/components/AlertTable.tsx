@@ -9,13 +9,7 @@ import {
 	TableHeader,
 	TableRow
 } from "@/components/ui/table"
-import {
-	ColumnDef,
-	useReactTable,
-	getCoreRowModel,
-	flexRender,
-	ColumnGrouping
-} from "@tanstack/react-table"
+import { ColumnDef, useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table"
 import { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -200,17 +194,15 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 		pageSize: rowsPerPage
 	})
 
-	// // Reset page when search filters change
-	// const updateFilter = useCallback((updates: Partial<AlertFilter>) => {
-	// 	console.log("Updating filter and resetting page")
-	// 	setCurrentPage(1) // Reset to first page
-	// 	setFilter(prev => ({
-	// 		...prev,
-	// 		...updates,
-	// 		offset: 0, // Reset offset when filters change
-	// 		pageSize: rowsPerPage
-	// 	}))
-	// }, [rowsPerPage])
+	// Function to clear all search filters
+	const clearFilters = () => {
+		setFilter({
+			orderBy: "severity",
+			order: "desc",
+			offset: (currentPage - 1) * rowsPerPage,
+			pageSize: rowsPerPage
+		})
+	}
 
 	// Update filter when page changes
 	useEffect(() => {
@@ -344,6 +336,12 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 										</TableHead>
 									)
 								})}
+								{/* Add Clear Filters button in the header row */}
+								<TableHead>
+									<Button variant="outline" onClick={clearFilters}>
+										Clear Filters
+									</Button>
+								</TableHead>
 							</TableRow>
 						))}
 					</TableHeader>
@@ -369,7 +367,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 						) : isLoading ? (
 							<TableRow>
 								<TableCell
-									colSpan={tableColumns.length}
+									colSpan={tableColumns.length + 1} // Adjust colspan to include the button column
 									className="h-24 text-center"
 								>
 									Loading...
@@ -378,7 +376,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 						) : (
 							<TableRow>
 								<TableCell
-									colSpan={tableColumns.length}
+									colSpan={tableColumns.length + 1} // Adjust colspan to include the button column
 									className="h-24 text-center"
 								>
 									No results.
@@ -417,28 +415,36 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 			{/* Popup for displaying additional alert details */}
 			{selectedAlert && (
 				<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-					<div className="bg-white p-4 rounded shadow-lg">
-						<h2 className="text-lg font-bold text-purple-700">Alert Details</h2>
-						<p className="text-purple-700">
-							<strong>Severity:</strong> {selectedAlert.severity}
-						</p>
-						<p className="text-purple-700">
-							<strong>Alert Name:</strong> {selectedAlert.alert_name}
-						</p>
-						<p className="text-purple-700">
-							<strong>Message:</strong> {selectedAlert.message}
-						</p>
-						<p className="text-purple-700">
-							<strong>Application Source:</strong> {selectedAlert.application_from}
-						</p>
-						<p className="text-purple-700">
-							<strong>Destination:</strong> {selectedAlert.destination_domain}
-						</p>
-						<p className="text-purple-700">
-							<strong>Timestamp:</strong> {selectedAlert.timestamp}
-						</p>
+					<div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+						<h2 className="text-2xl font-bold text-gray-800 mb-4">Alert Details</h2>
+						<div className="space-y-2">
+							<p className="text-gray-700">
+								<strong className="font-semibold">Severity:</strong>{" "}
+								{selectedAlert.severity}
+							</p>
+							<p className="text-gray-700">
+								<strong className="font-semibold">Alert Name:</strong>{" "}
+								{selectedAlert.alert_name}
+							</p>
+							<p className="text-gray-700">
+								<strong className="font-semibold">Message:</strong>{" "}
+								<span className="break-words">{selectedAlert.message}</span>
+							</p>
+							<p className="text-gray-700">
+								<strong className="font-semibold">Application Source:</strong>{" "}
+								{selectedAlert.application_from}
+							</p>
+							<p className="text-gray-700">
+								<strong className="font-semibold">Destination:</strong>{" "}
+								{selectedAlert.destination_domain}
+							</p>
+							<p className="text-gray-700">
+								<strong className="font-semibold">Timestamp:</strong>{" "}
+								{selectedAlert.timestamp}
+							</p>
+						</div>
 						<button
-							className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+							className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
 							onClick={() => setSelectedAlert(null)}
 						>
 							Close
