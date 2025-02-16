@@ -16,8 +16,13 @@ app.use(cors())
 app.get("/api/alerts", async (req, res) => {
 	try {
 		const filter: AlertFilter = AlertFilterSchema.parse(req.query)
-		// console.log(filter)
-		const alerts = await dbService.getAlerts(filter)
+
+		// Extract pagination parameters from the query
+		const offset = parseInt(req.query.offset as string, 10) || 0
+		const pageSize = parseInt(req.query.pageSize as string, 10) || 10
+
+		// Fetch alerts with pagination
+		const alerts = await dbService.getAlerts(filter, offset, pageSize)
 		res.json(alerts)
 	} catch (error) {
 		console.error(error)
