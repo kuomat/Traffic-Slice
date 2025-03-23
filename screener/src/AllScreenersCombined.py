@@ -3,6 +3,7 @@ from typing import List
 from Screeners import EnvVarScreener
 from Screeners import FileNameScreener
 from Screeners import MacAddrScreener
+from Screeners import ClipboardScreener
 from Screeners.IndividualScreener import IndividualScreener
 
 import mitmproxy.http as http
@@ -31,6 +32,7 @@ class AllScreenersCombined:
             EnvVarScreener(self.db_connection),
             FileNameScreener(self.db_connection),
             MacAddrScreener(self.db_connection),
+            ClipboardScreener(self.db_connection),
         ]
 
     def request(self, flow: http.HTTPFlow) -> None:
