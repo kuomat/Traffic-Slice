@@ -17,6 +17,7 @@ import { Route as rootRoute } from './routes/__root'
 // Create Virtual Routes
 
 const HelpLazyImport = createFileRoute('/help')()
+const AnalyticsLazyImport = createFileRoute('/analytics')()
 const AlertsLazyImport = createFileRoute('/alerts')()
 const AboutLazyImport = createFileRoute('/about')()
 const IndexLazyImport = createFileRoute('/')()
@@ -28,6 +29,12 @@ const HelpLazyRoute = HelpLazyImport.update({
   path: '/help',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/help.lazy').then((d) => d.Route))
+
+const AnalyticsLazyRoute = AnalyticsLazyImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/analytics.lazy').then((d) => d.Route))
 
 const AlertsLazyRoute = AlertsLazyImport.update({
   id: '/alerts',
@@ -72,6 +79,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlertsLazyImport
       parentRoute: typeof rootRoute
     }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/help': {
       id: '/help'
       path: '/help'
@@ -88,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/about': typeof AboutLazyRoute
   '/alerts': typeof AlertsLazyRoute
+  '/analytics': typeof AnalyticsLazyRoute
   '/help': typeof HelpLazyRoute
 }
 
@@ -95,6 +110,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/about': typeof AboutLazyRoute
   '/alerts': typeof AlertsLazyRoute
+  '/analytics': typeof AnalyticsLazyRoute
   '/help': typeof HelpLazyRoute
 }
 
@@ -103,15 +119,16 @@ export interface FileRoutesById {
   '/': typeof IndexLazyRoute
   '/about': typeof AboutLazyRoute
   '/alerts': typeof AlertsLazyRoute
+  '/analytics': typeof AnalyticsLazyRoute
   '/help': typeof HelpLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/alerts' | '/help'
+  fullPaths: '/' | '/about' | '/alerts' | '/analytics' | '/help'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/alerts' | '/help'
-  id: '__root__' | '/' | '/about' | '/alerts' | '/help'
+  to: '/' | '/about' | '/alerts' | '/analytics' | '/help'
+  id: '__root__' | '/' | '/about' | '/alerts' | '/analytics' | '/help'
   fileRoutesById: FileRoutesById
 }
 
@@ -119,6 +136,7 @@ export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   AboutLazyRoute: typeof AboutLazyRoute
   AlertsLazyRoute: typeof AlertsLazyRoute
+  AnalyticsLazyRoute: typeof AnalyticsLazyRoute
   HelpLazyRoute: typeof HelpLazyRoute
 }
 
@@ -126,6 +144,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   AboutLazyRoute: AboutLazyRoute,
   AlertsLazyRoute: AlertsLazyRoute,
+  AnalyticsLazyRoute: AnalyticsLazyRoute,
   HelpLazyRoute: HelpLazyRoute,
 }
 
@@ -142,6 +161,7 @@ export const routeTree = rootRoute
         "/",
         "/about",
         "/alerts",
+        "/analytics",
         "/help"
       ]
     },
@@ -153,6 +173,9 @@ export const routeTree = rootRoute
     },
     "/alerts": {
       "filePath": "alerts.lazy.tsx"
+    },
+    "/analytics": {
+      "filePath": "analytics.lazy.tsx"
     },
     "/help": {
       "filePath": "help.lazy.tsx"

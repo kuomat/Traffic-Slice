@@ -13,7 +13,7 @@ import { ColumnDef, useReactTable, getCoreRowModel, flexRender } from "@tanstack
 import { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react"
+import { ArrowDown, ArrowUp, ArrowUpDown, Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import {
@@ -27,6 +27,7 @@ import {
 
 type AlertTableProps = {
 	maxAlerts?: number
+	notableAlertsOnly?: boolean
 }
 
 // Displays a colored badge representing alert severity level
@@ -178,7 +179,7 @@ const SearchableCell = React.memo(
 )
 
 // Main table component displaying alerts with sorting and searching capabilities
-const AlertTable = React.memo(() => {
+const AlertTable = React.memo(({ notableAlertsOnly = false }: AlertTableProps) => {
 	// Add pagination state
 	const [currentPage, setCurrentPage] = useState(1)
 	const rowsPerPage = 10
@@ -219,7 +220,7 @@ const AlertTable = React.memo(() => {
 		setFilter(prev => {
 			const columnWasSorted = prev.orderBy === column
 			const newOrder = columnWasSorted ? (prev.order === "asc" ? "desc" : "asc") : "desc"
-			return { orderBy: column, order: newOrder }
+			return { ...prev, orderBy: column, order: newOrder }
 		})
 	}, [])
 
@@ -234,7 +235,7 @@ const AlertTable = React.memo(() => {
 	}
 
 	// Fetch alerts data with current filter
-	const { data: alerts, isLoading, error } = useAlerts(filter)
+	const { data: alerts, isLoading, error } = useAlerts(filter, notableAlertsOnly)
 
 	// Prepare alerts data for display, handling loading and error states
 	const alertsToUse = useMemo(() => {
@@ -305,6 +306,25 @@ const AlertTable = React.memo(() => {
 						/>
 					)
 				}
+			},
+			// Timestamp column with sortable header
+			{
+				accessorKey: "timestamp",
+				enableResizing: true,
+				header: () => {
+					return (
+						<Button variant="ghost" onClick={() => clickSorting("timestamp")}>
+							Time
+							<SortSymbol columnName="timestamp" alertFilter={filter} />
+						</Button>
+					)
+				},
+				cell: ({ row }) => {
+					// Format the timestamp for display
+					const timestamp = new Date(row.original.timestamp)
+					const formattedTime = timestamp.toLocaleString()
+					return <div>{formattedTime}</div>
+				}
 			}
 		],
 		[clickSorting, filter, setFilter]
@@ -345,9 +365,18 @@ const AlertTable = React.memo(() => {
 								})}
 								{/* Add Clear Filters button in the header row */}
 								<TableHead>
-									<Button variant="outline" onClick={clearFilters}>
-										Clear Filters
-									</Button>
+									<div className="group relative">
+										<Button
+											variant="ghost"
+											onClick={clearFilters}
+											className="border border-input overflow-hidden transition-all duration-300 w-9 group-hover:w-[130px] flex justify-center"
+										>
+											<X className="h-4 w-4 shrink-0 text-foreground absolute left-1/2 transform -translate-x-1/2 group-hover:left-2 group-hover:translate-x-0" />
+											<span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-4">
+												Clear Filters
+											</span>
+										</Button>
+									</div>
 								</TableHead>
 							</TableRow>
 						))}

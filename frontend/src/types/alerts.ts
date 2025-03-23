@@ -30,6 +30,8 @@ export type AlertFilter = {
 	destination_domain?: string
 	type?: string
 	severity?: number
+	minSeverity?: number // Minimum severity threshold
+	minTimestamp?: string // Minimum timestamp (for date filtering)
 	limit?: number
 	cursor?: number
 	orderBy?: keyof Alert

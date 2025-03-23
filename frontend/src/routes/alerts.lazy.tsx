@@ -1,4 +1,5 @@
 import { createLazyFileRoute } from "@tanstack/react-router"
+import AlertTable from "@/components/AlertTable"
 
 export const Route = createLazyFileRoute("/alerts")({
 	component: Alerts
@@ -6,9 +7,10 @@ export const Route = createLazyFileRoute("/alerts")({
 
 function Alerts() {
 	return (
-		<div className="container mx-auto p-4">
-			<h1 className="text-2xl font-bold mb-4">Alert List</h1>
-			<p>View and manage your alerts here.</p>
+		<div className="p-2">
+			<div className="p-4">
+				<AlertTable />
+			</div>
 		</div>
 	)
 }
