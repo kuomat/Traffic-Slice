@@ -3,6 +3,8 @@ from typing import List
 from Screeners import EnvVarScreener
 from Screeners import FileNameScreener
 from Screeners import MacAddrScreener
+from Screeners import LocationScreener
+from Screeners import TimestampScreener
 from Screeners.IndividualScreener import IndividualScreener
 
 import mitmproxy.http as http
@@ -29,8 +31,10 @@ class AllScreenersCombined:
         # initialize screeners
         self.screeners = [
             EnvVarScreener(self.db_connection),
-            FileNameScreener(self.db_connection),
+            #FileNameScreener(self.db_connection),
             MacAddrScreener(self.db_connection),
+            #LocationScreener(self.db_connection),
+            #TimestampScreener(self.db_connection),
         ]
 
     def request(self, flow: http.HTTPFlow) -> None:

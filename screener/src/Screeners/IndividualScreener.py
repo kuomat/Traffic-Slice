@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import sqlite3
 from typing import List, Optional
+import uuid
 from mitmproxy import tcp
 from mitmproxy import http
 from mitmproxy.utils import strutils
@@ -78,6 +79,14 @@ class IndividualScreener(ABC):
     def save_http_request_to_db(self, http_request: http.HTTPFlow) -> int:
         """Save the HTTP request to the database and return the ID"""
         cursor = self.db_connection.cursor()
+
+        cursor.execute("SELECT id FROM http_requests WHERE flow_id = ?", (http_request.id,))
+        existing_id = cursor.fetchone()
+
+        new_flow_id = http_request.id
+        if existing_id:
+            new_flow_id = f"{http_request.id}-{uuid.uuid4().hex[:8]}"
+            
         cursor.execute(
             """
             INSERT INTO http_requests (
@@ -85,7 +94,7 @@ class IndividualScreener(ABC):
             ) VALUES (?, ?, ?, ?, ?)
             """,
             (
-                http_request.id,
+                new_flow_id,
                 http_request.request.url,
                 http_request.request.method,
                 str(http_request.request.headers),
