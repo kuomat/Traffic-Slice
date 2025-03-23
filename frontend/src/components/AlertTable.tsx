@@ -179,11 +179,7 @@ const SearchableCell = React.memo(
 )
 
 // Main table component displaying alerts with sorting and searching capabilities
-<<<<<<< HEAD
 const AlertTable = React.memo(({ notableAlertsOnly = false }: AlertTableProps) => {
-=======
-const AlertTable = React.memo(() => {
->>>>>>> origin/akash2
 	// Add pagination state
 	const [currentPage, setCurrentPage] = useState(1)
 	const rowsPerPage = 10
