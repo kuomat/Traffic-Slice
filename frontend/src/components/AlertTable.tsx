@@ -178,10 +178,10 @@ const SearchableCell = React.memo(
 )
 
 // Main table component displaying alerts with sorting and searching capabilities
-const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
+const AlertTable = React.memo(() => {
 	// Add pagination state
 	const [currentPage, setCurrentPage] = useState(1)
-	const rowsPerPage = 5
+	const rowsPerPage = 10
 
 	// State to track the selected alert for the popup
 	const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null)
@@ -199,9 +199,10 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 		setFilter({
 			orderBy: "severity",
 			order: "desc",
-			offset: (currentPage - 1) * rowsPerPage,
+			offset: 0,
 			pageSize: rowsPerPage
 		})
+		setCurrentPage(1) // Reset to first page
 	}
 
 	// Update filter when page changes
@@ -221,6 +222,16 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 			return { orderBy: column, order: newOrder }
 		})
 	}, [])
+
+	// Update filter and reset page when a search is performed
+	const handleSearch = (columnName: SearchableAlertProperty, value: string) => {
+		setFilter(prev => ({
+			...prev,
+			[columnName]: value,
+			offset: 0 // Reset offset for new search
+		}))
+		setCurrentPage(1) // Reset to first page
+	}
 
 	// Fetch alerts data with current filter
 	const { data: alerts, isLoading, error } = useAlerts(filter)
@@ -260,9 +271,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 						title="Alert"
 						columnName="alert_name"
 						filter={filter}
-						onSearch={value => {
-							setFilter({ alert_name: value })
-						}}
+						onSearch={value => handleSearch("alert_name", value)}
 					/>
 				),
 				cell: ({ row }) => {
@@ -284,9 +293,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 						title="Application"
 						columnName="application_from"
 						filter={filter}
-						onSearch={value => {
-							setFilter({ application_from: value })
-						}}
+						onSearch={value => handleSearch("application_from", value)}
 					/>
 				),
 				cell: ({ row }) => {
@@ -351,7 +358,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && "selected"}
-									onClick={() => setSelectedAlert(row.original)} // Set selected alert on row click
+									onClick={() => setSelectedAlert(row.original)}
 									className="cursor-pointer"
 								>
 									{row.getVisibleCells().map(cell => (
@@ -367,7 +374,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 						) : isLoading ? (
 							<TableRow>
 								<TableCell
-									colSpan={tableColumns.length + 1} // Adjust colspan to include the button column
+									colSpan={tableColumns.length + 1}
 									className="h-24 text-center"
 								>
 									Loading...
@@ -376,7 +383,7 @@ const AlertTable = React.memo(({ maxAlerts }: AlertTableProps) => {
 						) : (
 							<TableRow>
 								<TableCell
-									colSpan={tableColumns.length + 1} // Adjust colspan to include the button column
+									colSpan={tableColumns.length + 1}
 									className="h-24 text-center"
 								>
 									No results.

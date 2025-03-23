@@ -94,17 +94,19 @@ class DatabaseService {
 		}
 
 		// Sort by whatever's given then timestamp
-		query += ` ORDER BY ${orderBy} ${order}, timestamp DESC LIMIT ? OFFSET ?`
-		params.push(limit, cursor)
+		query += ` ORDER BY ${orderBy} ${order}, timestamp DESC`
 
 		return { query, params }
 	}
 
 	// Alert queries
-	async getAlerts(filter: AlertFilter = {}): Promise<Alert[]> {
+	async getAlerts(filter: AlertFilter = {}, offset: number = 0, pageSize: number = this.MAX_ALERTS): Promise<Alert[]> {
 		const { query, params } = await this.buildQuery(filter)
+
+		// Directly interpolate LIMIT and OFFSET into the query string
+		const paginatedQuery = `${query} LIMIT ${pageSize} OFFSET ${offset}`
 		return new Promise((resolve, reject) => {
-			this.db!.all(query, params, (err, rows) => {
+			this.db!.all(paginatedQuery, params, (err, rows) => {
 				if (err) reject(err)
 				resolve(rows as Alert[])
 			})
