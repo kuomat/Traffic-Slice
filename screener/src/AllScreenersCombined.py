@@ -3,12 +3,9 @@ from typing import List
 from Screeners import EnvVarScreener
 from Screeners import FileNameScreener
 from Screeners import MacAddrScreener
-<<<<<<< HEAD
 from Screeners import ClipboardScreener
-=======
 from Screeners import LocationScreener
 from Screeners import TimestampScreener
->>>>>>> origin/akash2
 from Screeners.IndividualScreener import IndividualScreener
 
 import mitmproxy.http as http
@@ -35,14 +32,11 @@ class AllScreenersCombined:
         # initialize screeners
         self.screeners = [
             EnvVarScreener(self.db_connection),
-            #FileNameScreener(self.db_connection),
+            FileNameScreener(self.db_connection),
             MacAddrScreener(self.db_connection),
-<<<<<<< HEAD
             ClipboardScreener(self.db_connection),
-=======
-            #LocationScreener(self.db_connection),
-            #TimestampScreener(self.db_connection),
->>>>>>> origin/akash2
+            LocationScreener(self.db_connection),
+            TimestampScreener(self.db_connection),
         ]
 
     def request(self, flow: http.HTTPFlow) -> None:

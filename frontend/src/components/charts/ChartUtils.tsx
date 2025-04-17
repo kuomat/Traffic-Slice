@@ -3,11 +3,11 @@ import React from "react"
 // Colors for charts
 export const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d", "#ffc658"]
 export const SEVERITY_COLORS = {
-	"1": "#1e3a5f", // Dark navy blue for level 1
-	"2": "#2c4c6e", // Darker blue for level 2
-	"3": "#483d8b", // Dark slate blue/purple for level 3 - more distinctive
-	"4": "#644e4e", // Dark burgundy for level 4
-	"5": "hsl(var(--destructive))" // Keeping destructive red for highest severity
+	"1": "rgb(var(--severity-1))", // Severity level 1
+	"2": "rgb(var(--severity-2))", // Severity level 2
+	"3": "rgb(var(--severity-3))", // Severity level 3
+	"4": "rgb(var(--severity-4))", // Severity level 4
+	"5": "rgb(var(--severity-5))" // Severity level 5
 }
 
 // Chart theme styling
@@ -38,10 +38,11 @@ export const CustomTooltip = ({ active, payload, label }: any) => {
 	if (active && payload && payload.length) {
 		return (
 			<div className="p-2 bg-gray-800 border-none rounded-md text-gray-100 shadow-md">
-				<p className="font-medium">{label}</p>
+				<p className="font-medium text-primary">{label}</p>
 				{payload.map((entry: any, index: number) => (
-					<p key={index} style={{ color: entry.color || entry.stroke }}>
-						{entry.name}: {entry.value}
+					<p key={index} className="text-white">
+						<span style={{ color: entry.color || entry.stroke }}>●</span> {entry.name}:{" "}
+						{entry.value}
 					</p>
 				))}
 			</div>

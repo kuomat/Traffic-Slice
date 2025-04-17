@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/table"
 import { ColumnDef, useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table"
 import { useCallback, useEffect, useMemo, useState, useRef } from "react"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowDown, ArrowUp, ArrowUpDown, Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -24,32 +23,13 @@ import {
 	PaginationNext,
 	PaginationPrevious
 } from "@/components/ui/pagination"
+import AlertPopup from "./AlertPopup"
+import AlertBadge from "./AlertBadge"
 
 type AlertTableProps = {
 	maxAlerts?: number
 	notableAlertsOnly?: boolean
 }
-
-// Displays a colored badge representing alert severity level
-const RenderSeverity = React.memo(({ severity }: { severity: number }) => {
-	return (
-		<Badge
-			variant={
-				severity === 5
-					? "destructive"
-					: severity === 4
-						? "outline"
-						: severity === 3
-							? "outline"
-							: severity === 2
-								? "outline"
-								: "outline"
-			}
-		>
-			{severity}
-		</Badge>
-	)
-})
 
 // Renders sort direction indicator (up/down/both arrows) for sortable columns
 const SortSymbol = React.memo(
@@ -260,7 +240,7 @@ const AlertTable = React.memo(({ notableAlertsOnly = false }: AlertTableProps) =
 					)
 				},
 				cell: ({ row }) => {
-					return <RenderSeverity severity={row.original.severity} />
+					return <AlertBadge severity={row.original.severity} />
 				}
 			},
 			// Alert name column with search functionality
@@ -303,6 +283,28 @@ const AlertTable = React.memo(({ notableAlertsOnly = false }: AlertTableProps) =
 							value={row.original.application_from}
 							filter={filter}
 							columnName="application_from"
+						/>
+					)
+				}
+			},
+			// Destination column with search functionality
+			{
+				accessorKey: "destination_domain",
+				enableResizing: true,
+				header: () => (
+					<TableHeaderWithSearch
+						title="Destination"
+						columnName="destination_domain"
+						filter={filter}
+						onSearch={value => handleSearch("destination_domain", value)}
+					/>
+				),
+				cell: ({ row }) => {
+					return (
+						<SearchableCell
+							value={row.original.destination_domain}
+							filter={filter}
+							columnName="destination_domain"
 						/>
 					)
 				}
@@ -448,46 +450,8 @@ const AlertTable = React.memo(({ notableAlertsOnly = false }: AlertTableProps) =
 				</div>
 			)}
 
-			{/* Popup for displaying additional alert details */}
-			{selectedAlert && (
-				<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-					<div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-						<h2 className="text-2xl font-bold text-gray-800 mb-4">Alert Details</h2>
-						<div className="space-y-2">
-							<p className="text-gray-700">
-								<strong className="font-semibold">Severity:</strong>{" "}
-								{selectedAlert.severity}
-							</p>
-							<p className="text-gray-700">
-								<strong className="font-semibold">Alert Name:</strong>{" "}
-								{selectedAlert.alert_name}
-							</p>
-							<p className="text-gray-700">
-								<strong className="font-semibold">Message:</strong>{" "}
-								<span className="break-words">{selectedAlert.message}</span>
-							</p>
-							<p className="text-gray-700">
-								<strong className="font-semibold">Application Source:</strong>{" "}
-								{selectedAlert.application_from}
-							</p>
-							<p className="text-gray-700">
-								<strong className="font-semibold">Destination:</strong>{" "}
-								{selectedAlert.destination_domain}
-							</p>
-							<p className="text-gray-700">
-								<strong className="font-semibold">Timestamp:</strong>{" "}
-								{selectedAlert.timestamp}
-							</p>
-						</div>
-						<button
-							className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-							onClick={() => setSelectedAlert(null)}
-						>
-							Close
-						</button>
-					</div>
-				</div>
-			)}
+			{/* Use the new AlertPopup component */}
+			<AlertPopup alert={selectedAlert} onClose={() => setSelectedAlert(null)} />
 		</div>
 	)
 })

@@ -20,7 +20,7 @@ import {
 	CustomTooltip,
 	renderContent
 } from "./ChartUtils"
-import { BaseChartProps, DailyTrendDataPoint } from "./ChartTypes"
+import { BaseChartProps } from "./ChartTypes"
 
 const DailyTrendChart: React.FC<BaseChartProps> = ({ startDate, endDate }) => {
 	// Analytics filter

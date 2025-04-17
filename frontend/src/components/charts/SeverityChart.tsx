@@ -21,13 +21,16 @@ import {
 	CustomTooltip,
 	renderContent
 } from "./ChartUtils"
-import { BaseChartProps, PieChartDataPoint } from "./ChartTypes"
+import { BaseChartProps } from "./ChartTypes"
+import { useNavigate } from "@tanstack/react-router"
 
 const SeverityChart: React.FC<BaseChartProps> = ({ startDate, endDate }) => {
+	const navigate = useNavigate()
+
 	// Analytics filter
 	const severityFilter = useMemo<AnalyticsFilter>(
 		() => ({
-			timeGroupBy: "day",
+			timeGroupBy: "month",
 			dimensionGroupBy: "severity",
 			startDate: startDate.toISOString(),
 			endDate: endDate.toISOString()
@@ -42,12 +45,34 @@ const SeverityChart: React.FC<BaseChartProps> = ({ startDate, endDate }) => {
 	const formattedSeverityData = useMemo(() => {
 		if (!severityData) return []
 
-		return severityData.map(item => ({
-			name: `Severity ${item.dimension_key}`,
-			value: item.count,
-			color: SEVERITY_COLORS[item.dimension_key as keyof typeof SEVERITY_COLORS] || "#9c9c9c"
+		// Aggregate counts by severity level
+		const aggregatedData: Record<string, number> = {}
+
+		severityData.forEach(item => {
+			const severityKey = item.dimension_key || "unknown"
+			aggregatedData[severityKey] = (aggregatedData[severityKey] || 0) + item.count
+		})
+
+		// Convert to array format for charts
+		return Object.entries(aggregatedData).map(([key, count]) => ({
+			name: `Severity ${key}`,
+			value: count,
+			severity: parseInt(key),
+			color: SEVERITY_COLORS[key as keyof typeof SEVERITY_COLORS] || "#9c9c9c"
 		}))
 	}, [severityData])
+
+	// Handle bar click
+	const handleBarClick = (data: any) => {
+		if (data && data.severity) {
+			navigate({
+				to: "/alerts",
+				search: {
+					severity: data.severity
+				}
+			})
+		}
+	}
 
 	return (
 		<Card className="bg-gray-900 border-gray-800">
@@ -93,7 +118,12 @@ const SeverityChart: React.FC<BaseChartProps> = ({ startDate, endDate }) => {
 											</span>
 										)}
 									/>
-									<Bar dataKey="value" name="Count">
+									<Bar
+										dataKey="value"
+										name="Count"
+										onClick={handleBarClick}
+										style={{ cursor: "pointer" }}
+									>
 										{formattedSeverityData.map((entry, index) => (
 											<Cell key={`cell-${index}`} fill={entry.color} />
 										))}
@@ -117,6 +147,7 @@ const SeverityChart: React.FC<BaseChartProps> = ({ startDate, endDate }) => {
 										fill="#8884d8"
 										dataKey="value"
 										nameKey="name"
+										onClick={handleBarClick}
 									>
 										{formattedSeverityData.map((entry, index) => (
 											<Cell key={`cell-${index}`} fill={entry.color} />
